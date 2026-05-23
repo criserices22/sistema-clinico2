@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión Clínica APS - Simulación Académica Avanzada</title>
+    <style> .risk-box { padding: 10px; border: 1px solid #ddd; text-align: center; font-weight: bold; }
+.risk-box { padding: 10px; border: 1px solid #ddd; text-align: center; font-weight: bold; }
+.risk-0 { background-color: #dcfce7; color: #166534; }
+.risk-1 { background-color: #fef9c3; color: #854d0e; }
+.risk-2 { background-color: #fef3c7; color: #92400e; }
+.risk-3 { background-color: #fee2e2; color: #991b1b; }
+.risk-label { font-size: 10px; margin-top: 5px; color: #555; }
+.program-form-content { display: none; }
+.program-form-content.open { 
+    display: block !important;
+}
+        :root {
+            --green-bar: #a3cc29;
+            --dark-gray: #404040;
+            --light-bg: #f4f4f4;
+            --blue-accent: #00bcd4;
+            --border-color: #cccccc;
+            --header-gray: #e6e6e6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            color: #000000;
+        }
+
+        /* BANNER SUPERIOR DE PACIENTE EDITABLE */
+        .patient-banner {
+            background-color: var(--green-bar);
+            padding: 8px 12px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #8cb41e;
+        }
+
+        .patient-banner input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px dashed #404040;
+            font-weight: bold;
+            color: #000000;
+            padding: 2px;
+        }
+
+        .mode-indicator {
+            font-size: 9px;
+            color: #404040;
+        }
+
+        /* PESTAÑAS PRINCIPALES (IZQUIERDA) */
+        .tabs-container {
+            background-color: var(--dark-gray);
+            display: flex;
+            flex-wrap: wrap;
+            border-bottom: 2px solid #222;
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            border-right: 1px solid #555;
+            color: #ffffff;
+            padding: 8px 14px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        .tab-button:hover, .tab-button.active {
+            background-color: #555555;
+        }
+
+        /* DISEÑO DE PANTALLA DIVIDIDA */
+        .app-layout {
+            display: grid;
+            grid-template-columns: 1fr 430px;
+            height: calc(100vh - 70px);
+            background: #ffffff;
+        }
+
+        .left-panel {
+            padding: 15px;
+            overflow-y: auto;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .right-panel {
+            padding: 15px;
+            overflow-y: auto;
+            background-color: #fafafa;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .tab-view {
+            display: none;
+        }
+
+        .tab-view.active {
+            display: block;
+        }
+
+        /* PROGRAMAS ACTIVOS */
+        .program-select-box {
+            background: #f0f4f8;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--dark-gray);
+        }
+
+        .active-programs-container {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .program-card {
+            border: 1px solid var(--border-color);
+            border-left: 5px solid var(--blue-accent);
+            border-radius: 4px;
+            background: #ffffff;
+            overflow: hidden;
+        }
+
+        .program-card-header {
+            background: #fdfefe;
+            padding: 8px 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            user-select: none;
+        }
+
+        .program-card-header:hover {
+            background: #f1f5f9;
+        }
+
+        /* TABLA DEL ALGORITMO ULCERACIÓN (6 PASOS) */
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+            background: white;
+        }
+
+        .matrix-table th {
+            background-color: #f1f5f9 !important;
+            color: #1e293b !important;
+            font-size: 10px;
+            padding: 6px 3px;
+            border: 1px solid var(--border-color);
+        }
+
+        .matrix-table td {
+            padding: 8px 4px;
+            border: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        .step-title {
+            background-color: #e2e8f0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        .radio-group-vertical {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 3px 0;
+        }
+
+        .radio-group-vertical label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* CUESTIONARIO PHQ-9 MODIFICADO */
+        .phq9-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            margin-top: 8px;
+        }
+
+        .phq9-table th {
+            background-color: #f1f5f9 !important;
+            color: #1e293b !important;
+            font-size: 10px;
+            padding: 6px 4px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .phq9-table td {
+            padding: 6px 4px;
+            border: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .phq9-table td:not(:first-child) {
+            text-align: center;
+        }
+
+        .phq9-score-container {
+            margin-top: 12px;
+            padding: 10px;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 4px;
+        }
+
+        /* EXÁMENES DE LABORATORIO */
+        .exam-form-container {
+            background-color: #f8fafc;
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .exam-card-history {
+            border: 1px solid var(--border-color);
+            background: #ffffff;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            overflow: hidden;
+        }
+
+        .exam-card-history-header {
+            background: #f1f5f9;
+            padding: 8px 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .exam-table-internal {
+            width: 100%;
+            border-collapse: collapse;
+            background: #ffffff;
+        }
+
+        .exam-table-internal th {
+            background-color: #e2e8f0;
+            color: #334155;
+            padding: 6px;
+            border: 1px solid var(--border-color);
+            font-weight: bold;
+            text-align: left;
+        }
+
+        .exam-table-internal td {
+            padding: 6px;
+            border: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .risk-display-block {
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 13px;
+            box-shadow: inset 0 0 6px rgba(0,0,0,0.08);
+            margin-bottom: 5px;
+        }
+        .risk-0 { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .risk-3 { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+        /* SECCIÓN EDUCACIÓN */
+        .education-form-container {
+            background-color: #f8fafc;
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .education-grid-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .education-history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background: #ffffff;
+        }
+
+        .education-history-table th {
+            background-color: var(--dark-gray);
+            color: white;
+            padding: 6px;
+            font-weight: bold;
+            border: 1px solid #333;
+            text-align: left;
+        }
+
+        .education-history-table td {
+            padding: 8px 6px;
+            border: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        /* PARÁMETROS CLÍNICOS */
+        .param-form-container {
+            background-color: #f8fafc;
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .param-grid-inputs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+            margin-bottom: 10px;
+        }
+
+        .param-input-unit {
+            display: flex;
+            flex-direction: column;
+            width: 75px;
+        }
+
+        .param-input-unit label {
+            font-weight: bold;
+            margin-bottom: 2px;
+            color: #475569;
+            font-size: 9px;
+        }
+
+        /* SUB-PESTAÑAS PANEL DERECHO */
+        .right-panel-tabs {
+            display: flex;
+            background-color: #dcdcdc;
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+        }
+
+        .sub-tab-btn {
+            flex: 1;
+            padding: 6px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            text-align: center;
+            border-right: 1px solid var(--border-color);
+            color: #555;
+        }
+
+        .sub-tab-btn.active {
+            background-color: #ffffff;
+            color: #000000;
+        }
+
+        .sub-tab-content {
+            display: none;
+            border: 1px solid var(--border-color);
+            background: #ffffff;
+            padding: 10px;
+        }
+
+        .sub-tab-content.active {
+            display: block;
+        }
+
+        /* FICHA CLÍNICA ACTUAL */
+        .ficha-box {
+            border: 1px solid #404040;
+            background: #fff;
+        }
+
+        .ficha-header {
+            background-color: var(--header-gray);
+            padding: 6px 10px;
+            font-weight: bold;
+            border-bottom: 1px solid #404040;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ficha-body {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .ficha-label {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 2px;
+            display: block;
+            text-transform: uppercase;
+        }
+
+        .ficha-select, .ficha-input {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid var(--border-color);
+            border-radius: 2px;
+        }
+
+        .ficha-textarea {
+            width: 100%;
+            height: 50px;
+            resize: vertical;
+            border: 1px solid var(--border-color);
+            font-family: Arial, sans-serif;
+            padding: 6px;
+            border-radius: 2px;
+        }
+
+        /* RESPONSIVE TABLE */
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+
+        table.main-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #ffffff;
+        }
+
+        table.main-table th {
+            background-color: var(--dark-gray);
+            color: white;
+            font-weight: bold;
+            padding: 6px;
+            border: 1px solid #333;
+        }
+
+        table.main-table td {
+            padding: 6px 4px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .btn-action {
+            background-color: #404040;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            cursor: pointer;
+            border-radius: 2px;
+            font-weight: bold;
+        }
+
+        .btn-action:hover { background-color: #222; }
+        .btn-green { background-color: #7da31d; }
+        .btn-blue { background-color: #00bcd4; color: white; }
+        .btn-red { background-color: #e11d48; color: white; }
+
+        /* CIERRE ESTADÍSTICO EN CASCADA COMPLETO */
+        .action-button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .rem-modal-section {
+            background-color: #fffbeb;
+            border: 2px solid #f59e0b;
+            border-radius: 4px;
+            padding: 12px;
+            margin-top: 12px;
+            display: none;
+        }
+
+        .rem-cascade-box {
+            background: #ffffff;
+            border: 1px solid #fed7aa;
+            padding: 8px;
+            margin-top: 6px;
+            border-radius: 3px;
+        }
+
+        .rem-checkbox-card {
+            background: white;
+            border: 1px solid #cbd5e1;
+            padding: 6px 10px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        .rem-checkbox-card:hover { background-color: #f8fafc; }
+
+        /* HISTORIAL DE PACIENTES GUARDADOS */
+        .saved-patients-section {
+            border: 1px solid var(--border-color);
+            background: #edf2f7;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 12px;
+        }
+
+        .patient-chips-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .patient-clickable-chip {
+            background-color: #ffffff;
+            border: 1px solid #4a5568;
+            color: #2d3748;
+            padding: 6px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .patient-clickable-chip:hover { background-color: #e2e8f0; }
+    </style>
+</head>
+<body>
+
+    <div class="patient-banner">
+        <div>
+            👤 PACIENTE: <input type="text" id="p-nombre" value="JUAN PÉREZ EXPÓSITO" style="width: 140px;"> | 
+            R.U.N.: <input type="text" id="p-run" value="12.345.678-K" style="width: 85px;"> | 
+            SEXO: <input type="text" id="p-sexo" value="Hombre" style="width: 50px;"> | 
+            EDAD: <input type="text" id="p-edad" value="45" style="width: 25px;"> años 
+        </div>
+        <div class="mode-indicator">
+            MODO SIMULACIÓN ACTIVO ⚙️
+        </div>
+    </div>
+
+    <div class="tabs-container">
+        <button class="tab-button active" onclick="openLeftTab('parametros')">Param. Clínicos</button>
+        <button class="tab-button" onclick="openLeftTab('programas')">PROGRAMAS DE SALUD</button>
+        <button class="tab-button" onclick="openLeftTab('educacion')">Educación</button>
+        <button class="tab-button" onclick="openLeftTab('examenes')">Exámenes</button>
+    </div>
+
+    <div class="app-layout">
+        
+        <div class="left-panel">
+            
+            <div id="parametros" class="tab-view active">
+                <div style="background-color: #f1f5f9; border: 1px solid var(--border-color); padding: 10px; margin-bottom: 12px; border-radius: 4px;">
+                    <strong>➕ Crear Nueva Columna de Parámetro Personalizado:</strong><br>
+                    <div style="display:flex; gap:6px; margin-top:4px;">
+                        <input type="text" id="nuevo-param-nombre" placeholder="Ej: Glicemia, SatO2, Hgt" style="padding: 5px; flex-grow:1;">
+                        <button class="btn-action btn-green" onclick="crearNuevaColumnaParametro()">Agregar Columna</button>
+                    </div>
+                </div>
+
+                <div class="param-form-container">
+                    <p style="font-weight: bold; color: #1e293b;">📝 Formulario de Registro de Constantes Vitales:</p>
+                    <div class="param-grid-inputs" id="contenedor-inputs-dinamicos">
+                        <div class="param-input-unit"><label>Fecha:</label><input type="text" id="p-in-fecha" class="ficha-input" value="22/05/2026"></div>
+                        <div class="param-input-unit"><label>Peso (KG):</label><input type="text" id="p-in-peso" class="ficha-input" placeholder="78.5"></div>
+                        <div class="param-input-unit"><label>Talla (M):</label><input type="text" id="p-in-talla" class="ficha-input" placeholder="1.72"></div>
+                        <div class="param-input-unit"><label>IMC:</label><input type="text" id="p-in-imc" class="ficha-input" placeholder="26.5"></div>
+                        <div class="param-input-unit"><label>PAS:</label><input type="text" id="p-in-pas" class="ficha-input" placeholder="130"></div>
+                        <div class="param-input-unit"><label>PAD:</label><input type="text" id="p-in-pad" class="ficha-input" placeholder="85"></div>
+                        <div class="param-input-unit"><label>Pulso:</label><input type="text" id="p-in-pulso" class="ficha-input" placeholder="72"></div>
+                        <div class="param-input-unit"><label>T. Axilar:</label><input type="text" id="p-in-taxilar" class="ficha-input" placeholder="36.5"></div>
+                        <div class="param-input-unit"><label>C. Cintura:</label><input type="text" id="p-in-ccintura" class="ficha-input" placeholder="96"></div>
+                    </div>
+                    <button class="btn-action btn-green" style="width:100%; padding:8px; margin-top:5px;" onclick="guardarFilaParametrosHistorial()">💾 Guardar y Registrar Parámetros Clínicos</button>
+                </div>
+
+                <h3>📊 Historial Clínico de Constantes Vitales Grabadas</h3>
+                <div class="table-responsive">
+                    <table id="tabla-clinica" class="main-table">
+                        <thead>
+                            <tr id="tabla-header-row">
+                                <th>FECHA</th><th>PESO (KG)</th><th>TALLA (M)</th><th>IMC</th><th>PAS</th><th>PAD</th><th>PULSO</th><th>T. AXILAR</th><th>C. CINTURA</th><th style="min-width:40px; background:#404040;">ACC.</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-clinica-tbody">
+                            <tr id="fila-vacia-parametros">
+                                <td colspan="10" style="text-align: center; color: #888; font-style: italic; padding: 15px; background:#ffffff;">No se han guardado parámetros clínicos en esta consulta.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="programas" class="tab-view">
+                <h3>Programas de Atención Primaria de Salud (Chile)</h3>
+                <div class="program-select-box">
+                    <strong>Asignar Programa Principal:</strong>
+                    <select id="selector-programa-principal" class="ficha-select" style="margin-top: 5px;" onchange="agregarProgramaAlFlujo()">
+                        <option value="">-- Seleccione para agregar --</option>
+                        <option value="pscv">PSCV PROGRAMA DE SALUD CARDIOVASCULAR</option>
+                        <option value="mental">Programa de Salud Mental (Cuestionario PHQ-9)</option>
+                    </select>
+                </div>
+                <h4>📌 Programas Activos en esta Consulta</h4>
+                <div id="contenedor-programas-activos" class="active-programs-container"></div>
+            </div>
+
+            <div id="educacion" class="tab-view">
+                <span class="ficha-label" style="background:#404040; color:white; padding:6px; display:block; margin-bottom:12px; text-align:center;">SECCIÓN DE EDUCACIÓN Y CONSEJERÍA AL PACIENTE</span>
+                <div class="education-form-container">
+                    <div class="education-grid-fields">
+                        <div><label>Fecha:</label><input type="text" id="edu-fecha" class="ficha-input" value="22/05/2026"></div>
+                        <div><label>Profesional:</label><input type="text" id="edu-profesional" class="ficha-input" value="Enf. Alumno"></div>
+                        <div><label>Carrera:</label><input type="text" id="edu-profesion" class="ficha-input" value="Enfermería"></div>
+                    </div>
+                    <div style="margin-bottom: 10px;"><label>Educación y Consejería:</label><textarea id="edu-contenido" class="ficha-textarea" placeholder="Ej: Educación técnica en autocuidado..."></textarea></div>
+                    <div style="margin-bottom: 12px;"><label>Observaciones:</label><input type="text" id="edu-observaciones" class="ficha-input" placeholder="Paciente demuestra buena comprensión"></div>
+                    <button class="btn-action btn-green" style="width: 100%;" onclick="guardarNuevaEducacion()">💾 Guardar y Registrar Educación</button>
+                </div>
+                <h4>📌 Historial Clínico de Educaciones</h4>
+                <table class="education-history-table" id="tabla-historial-educacion">
+                    <thead><tr><th>FECHA</th><th>PROFESIONAL</th><th>CONTENIDO</th><th>OBSERVACIONES</th><th>ACC.</th></tr></thead>
+                    <tbody><tr id="fila-vacia-educacion"><td colspan="5" style="text-align:center; padding:15px;">No se han registrado actividades de educación.</td></tr></tbody>
+                </table>
+            </div>
+
+            <div id="examenes" class="tab-view">
+                <span class="ficha-label" style="background:#404040; color:white; padding:6px; display:block; margin-bottom:12px; text-align:center;">🔬 EXÁMENES DE LABORATORIO</span>
+                <div class="exam-form-container">
+                    <div class="education-grid-fields">
+                        <div><label>Fecha de Toma:</label><input type="text" id="ex-fecha" class="ficha-input" value="22/05/2026"></div>
+                        <div><label>Solicitante:</label><input type="text" id="ex-profesional" class="ficha-input" value="Dr. M. González"></div>
+                        <div><label>Examen Tipo:</label>
+                            <select id="ex-tipo" class="ficha-select" onchange="actualizarCamposExamenFijo()">
+                                <option value="hematocrito">Hematocrito</option>
+                                <option value="glicemia">Glicemia</option>
+                                <option value="perfil_lipidico">Perfil Lipídico Completo</option>
+                                <option value="creatinina">Creatinina Plasmática</option>
+                                <option value="rac">RAC (Relación Albúmina/Creatinina)</option>
+                                <option value="hba1c">HbA1c (Hemoglobina Glicosilada)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="contenedor-valores-examen-especifico" style="background:white; border:1px solid var(--border-color); padding:8px; margin:8px 0;"></div>
+                    <div class="education-grid-fields" style="grid-template-columns: 130px 1fr; margin-top:8px;">
+                        <div><label>Estado Global:</label><select id="ex-estado-global" class="ficha-select"><option value="normal">🟢 Normal</option><option value="alterado">🔴 Alterado</option></select></div>
+                        <div><label>Observación:</label><input type="text" id="ex-observacion" class="ficha-input"></div>
+                    </div>
+                    <button class="btn-action btn-green" style="width:100%; padding:8px; margin-top:10px;" onclick="guardarExamenLaboratorioHistorial()">🔬 Registrar Examen de Laboratorio</button>
+                </div>
+                <div id="contenedor-historial-examenes-laboratorio">
+                    <div id="aviso-vacio-examenes" style="text-align: center; color: #888; font-style: italic; padding: 20px; background:#fff; border:1px solid var(--border-color);">No se han cargado exámenes de laboratorio.</div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="right-panel">
+            <div>
+                <div class="right-panel-tabs">
+                    <button class="sub-tab-btn active" onclick="openRightSubTab('sub-meap')">MEAP</button>
+                    <button class="sub-tab-btn" onclick="openRightSubTab('sub-crono')">CRONOLÓGICO</button>
+                    <button class="sub-tab-btn" onclick="openRightSubTab('sub-episodios')">EPISODIOS</button>
+                </div>
+                
+                <div id="sub-meap" class="sub-tab-content active"></div>
+                
+                <div id="sub-crono" class="sub-tab-content">
+                    <span class="ficha-label" style="color: #7da31d;">Historial de Atenciones Anteriores</span>
+                    <div class="teacher-form">
+                        <div style="display: grid; grid-template-columns: 75px 1fr; gap: 4px; margin-bottom: 4px;">
+                            <input type="text" id="crono-fecha" placeholder="DD/MM/AAAA" class="ficha-input">
+                            <input type="text" id="crono-profesional" placeholder="Profesional" class="ficha-input">
+                        </div>
+                        <input type="text" id="crono-accion" placeholder="Acción Realizada" class="ficha-input" style="margin-bottom: 4px;">
+                        <label style="font-weight:bold; display:block; margin: 4px 0 2px 0; color: #475569; font-size:9px;">BREVE ANAMNESIS / EVOLUCIÓN HISTÓRICA:</label>
+                        <textarea id="crono-anamnesis" class="ficha-textarea" style="height:40px; margin-bottom:4px;" placeholder="Detalles clínicos breves..."></textarea>
+                        <button class="btn-action btn-green" style="width: 100%;" onclick="docenteAgregarCronologico()">Agregar al Historial</button>
+                    </div>
+                    <ul class="history-list" id="lista-cronologico-docente"></ul>
+                </div>
+
+                <div id="sub-episodios" class="sub-tab-content">
+                    <span class="ficha-label" style="color: #7da31d;">Historial de Enfermedades / Diagnósticos Activos</span>
+                    <div class="teacher-form" style="display: flex; gap: 4px;">
+                        <input type="text" id="episodio-nombre" placeholder="Ej: Diabetes Mellitus Tipo 2" class="ficha-input">
+                        <button class="btn-action btn-green" style="padding: 2px 10px;" onclick="docenteAgregarEpisodio()">+</button>
+                    </div>
+                    <ul class="history-list" id="lista-episodios-docente"></ul>
+                </div>
+            </div>
+
+            <div class="ficha-box" id="seccion-consulta-actual-estudiante">
+                <div class="ficha-header"><span>📝 CONSULTA Y REGISTRO CLÍNICO ACTUAL</span><span style="color:#00bcd4; font-size:9px;">ESTUDIANTE</span></div>
+                <div class="ficha-body">
+                    <label class="ficha-label">Categoría Profesional:</label>
+                    <select class="ficha-select" id="reg-categoria"><option>Enfermero/a Universitario</option><option>Médico General APS</option><option>Nutricionista</option></select>
+                    <label class="ficha-label">Motivo de Consulta:</label><textarea class="ficha-textarea" id="reg-motivo" placeholder="Ej: Control Cardiovascular..."></textarea>
+                    <label class="ficha-label">Anamnesis:</label><textarea class="ficha-textarea" id="reg-anamnesis"></textarea>
+                    
+                    <label class="ficha-label">Exploración / Examen Físico:</label>
+                    <textarea class="ficha-textarea" id="reg-fisico" style="height:70px;" placeholder="Los signos vitales se inyectarán de forma automática aquí al guardarlos arriba..."></textarea>
+                    
+                    <label class="ficha-label">Diagnósticos:</label><textarea class="ficha-textarea" id="reg-diagnosticos"></textarea>
+                    <label class="ficha-label">Actuación / Plan e Indicaciones:</label><textarea class="ficha-textarea" id="reg-actuacion"></textarea>
+
+                    <div class="action-button-group">
+                        <button class="btn-action btn-blue" onclick="ejecutarGuardarParcial()">💾 Guardar Temporal</button>
+                        <button class="btn-action btn-red" onclick="ejecutarGuardarYCerrarAtencion()">🔒 Guardar y Cerrar</button>
+                    </div>
+
+                    <div class="rem-modal-section" id="seccion-rem-flujo">
+                        <strong style="color:#b45309; font-size:11px;">⚠️ REQUERIMIENTO ESTADÍSTICO DE ATENCIÓN (ÁRBOL REM)</strong>
+                        
+                        <div style="margin-top: 6px;">
+                            <label class="rem-checkbox-card">
+                                <input type="checkbox" id="rem-a01" onchange="toggleCascadeLevelA01Parent(this)">
+                                <span>REM A01: Rendimiento de Controles de Salud</span>
+                            </label>
+                        </div>
+
+                        <div id="sub-rama-a01-seccion-b" class="rem-cascade-box" style="display:none; margin-left:10px; border-color:#cbd5e1;">
+                            <label class="rem-checkbox-card">
+                                <input type="checkbox" id="rem-seccion-b" onchange="toggleCascadeLevel('nivel-b-control-salud', this)">
+                                <span>Sección B: Controles de Salud Según Ciclo Vital</span>
+                            </label>
+                            
+                            <div id="nivel-b-control-salud" class="rem-cascade-box" style="display:none; margin-left:12px; border-style:dashed;">
+                                <label><input type="checkbox" id="chk-b-control-salud-unico"> 📋 Registrar Producción: Control de Salud</label>
+                            </div>
+                        </div>
+
+                        <div id="sub-rama-a01-seccion-c" class="rem-cascade-box" style="display:none; margin-left:10px; border-color:#93c5fd;">
+                            <label class="rem-checkbox-card" style="background:#f0fdfa;">
+                                <input type="checkbox" id="rem-seccion-c" onchange="toggleCascadeLevel('nivel-cuatro-opciones-a01', this)">
+                                <span>Sección C: Controles Según Problemas de Salud</span>
+                            </label>
+                            
+                            <div id="nivel-cuatro-opciones-a01" class="rem-cascade-box" style="display:none; margin-left:12px;">
+                                <span style="font-weight:bold; color:#1e40af; display:block; margin-bottom:4px;">Seleccione Tipo de Control Validante:</span>
+                                <label><input type="radio" name="sub_a01_opcion" value="cardio" onchange="evaluarDespliegueAsociacionPrograma(this)"> Control de Salud Cardiovascular (PSCV)</label><br>
+                                <label><input type="radio" name="sub_a01_opcion" value="its" onchange="evaluarDespliegueAsociacionPrograma(this)"> Control de Infección de Transmisión Sexual</label><br>
+                                <label><input type="radio" name="sub_a01_opcion" value="tbc" onchange="evaluarDespliegueAsociacionPrograma(this)"> Control de TBC</label><br>
+                                <label><input type="radio" name="sub_a01_opcion" value="otros" onchange="evaluarDespliegueAsociacionPrograma(this)"> Controles Otros Problemas de Salud</label>
+                            </div>
+                        </div>
+
+                        <div id="nivel-asociacion-programa" class="rem-cascade-box" style="display:none; margin-left:30px; background:#f0fdf4; border-color:#16a34a;">
+                            <label style="font-weight:bold; color:#14532d; display:block; margin-bottom:4px;">🔗 Asociar Actividad al Módulo Clínico Activo:</label>
+                            <select id="rem-programa-asociado-select" class="ficha-select">
+                                <option value="">-- Seleccionar Módulo Validante --</option>
+                                <option value="diabetes">Submódulo Diabetes (Evaluación Pie Diabético Activa)</option>
+                                <option value="mental">Submódulo Salud Mental (Escala PHQ-9 Ejecutada)</option>
+                            </select>
+                        </div>
+
+                        <div style="margin-top: 6px;">
+                            <label class="rem-checkbox-card">
+                                <input type="checkbox" id="rem-a02" onchange="toggleCascadeLevel('nivel-a02-emp', this)">
+                                <span>REM A02: Examen de Medicina Preventiva (EMP) en Mayores de 15 años</span>
+                            </label>
+                        </div>
+
+                        <div id="nivel-a02-emp" class="rem-cascade-box" style="display:none; margin-left:12px; background:#fafafa; border-color:#cbd5e1;">
+                            <div style="margin-bottom:6px; border-bottom:1px dashed #ddd; padding-bottom:4px;">
+                                <strong style="color:#475569; display:block; margin-bottom:2px;">Sección B: EMP Según Resultado Nutricional</strong>
+                                <label><input type="checkbox" name="emp_b" value="Bajo Peso"> Estado Nutricional Bajo Peso (EMP)</label><br>
+                                <label><input type="checkbox" name="emp_b" value="Normal"> Estado Nutricional Normal (EMP)</label><br>
+                                <label><input type="checkbox" name="emp_b" value="Sobrepeso"> Estado Nutricional Sobrepeso (EMP)</label><br>
+                                <label><input type="checkbox" name="emp_b" value="Obeso"> Estado Nutricional Obesos (EMP)</label>
+                            </div>
+                            <div style="margin-bottom:6px; border-bottom:1px dashed #ddd; padding-bottom:4px;">
+                                <strong style="color:#475569; display:block; margin-bottom:2px;">Sección C: Resultados de EMP Según Estado de Salud</strong>
+                                <label><input type="checkbox" name="emp_c" value="PA Elevada"> Presión Arterial Elevada (= o &gt; 140/90 mmHg)</label><br>
+                                <label><input type="checkbox" name="emp_c" value="Tabaquismo"> Tabaquismo</label>
+                            </div>
+                            <div>
+                                <strong style="color:#475569; display:block; margin-bottom:2px;">Sección D: Resultados de EMP Según Estado de Salud</strong>
+                                <label><input type="checkbox" name="emp_d" value="Colesterol"> Colesterol Elevado (= o &gt; 200 mg/dL)</label><br>
+                                <label><input type="checkbox" name="emp_d" value="Glicemia"> Glicemia Alterada (= o &gt; a 100 mg/dL)</label>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 6px;">
+                            <label class="rem-checkbox-card">
+                                <input type="checkbox" id="rem-a04" onchange="toggleCascadeLevel('nivel-a04-consultas', this)">
+                                <span>REM A04: Actividades de Enfermería y Procedimientos</span>
+                            </label>
+                        </div>
+                        <div id="nivel-a04-consultas" class="rem-cascade-box" style="display:none; margin-left:12px;">
+                            <label><input type="checkbox" id="chk-a04-consulta" value="Consulta Enfermeria"> 📋 Registrar Producción: Consultas de Enfermería</label>
+                        </div>
+
+                        <div style="margin-top: 6px;">
+                            <label class="rem-checkbox-card"><input type="checkbox" id="rem-bm02"> <span>REM BM02: Exámenes Diagnósticos de Laboratorio</span></label>
+                        </div>
+
+                        <button class="btn-action btn-green" style="width:100%; padding:8px; font-size:11px; margin-top:10px;" onclick="ejecutarCierreYGuardarDefinitivo()">✔️ CERRAR ATENCIÓN Y CREAR PACIENTE NUEVO</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="saved-patients-section">
+                <strong style="color:#2d3748;">👥 Pacientes Guardados en esta Consulta (Presionables):</strong>
+                <div class="patient-chips-container" id="contenedor-chips-pacientes"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var listadoIdsColumnasExtras = [];
+        var examIdCounter = 0;
+        var listadoPacientesGlobales = [];
+
+        window.onload = function() {
+            actualizarCamposExamenFijo();
+        };
+
+        function openLeftTab(tabName) {
+            document.querySelectorAll(".tab-view").forEach(x => x.style.display = "none");
+            document.querySelectorAll(".tab-button").forEach(x => x.classList.remove("active"));
+            document.getElementById(tabName).style.display = "block"; 
+            event.currentTarget.classList.add("active");
+        }
+
+        function openRightSubTab(subTabId) {
+            document.querySelectorAll(".sub-tab-content").forEach(x => x.classList.remove("active"));
+            document.querySelectorAll(".sub-tab-btn").forEach(x => x.classList.remove("active"));
+            document.getElementById(subTabId).classList.add("active");
+            event.currentTarget.classList.add("active");
+            var fichaEstudiante = document.getElementById("seccion-consulta-actual-estudiante");
+            fichaEstudiante.style.display = (subTabId === "sub-meap") ? "block" : "none";
+        }
+
+        function toggleCascadeLevelA01Parent(chk) {
+            var boxB = document.getElementById("sub-rama-a01-seccion-b");
+            var boxC = document.getElementById("sub-rama-a01-seccion-c");
+            if (chk.checked) {
+                boxB.style.display = "block";
+                boxC.style.display = "block";
+            } else {
+                boxB.style.display = "none";
+                boxC.style.display = "none";
+                document.getElementById("rem-seccion-b").checked = false;
+                document.getElementById("rem-seccion-c").checked = false;
+                document.getElementById("nivel-b-control-salud").style.display = "none";
+                document.getElementById("nivel-cuatro-opciones-a01").style.display = "none";
+                document.getElementById("nivel-asociacion-programa").style.display = "none";
+                document.getElementById("rem-programa-asociado-select").value = "";
+                document.getElementById("chk-b-control-salud-unico").checked = false;
+                var radios = document.getElementsByName("sub_a01_opcion");
+                for(var i=0; i<radios.length; i++) radios[i].checked = false;
+            }
+        }
+
+        function toggleCascadeLevel(targetId, chk) {
+            var box = document.getElementById(targetId);
+            if (chk.checked) {
+                box.style.display = "block";
+            } else {
+                box.style.display = "none";
+                var inputsInternos = box.getElementsByTagName('input');
+                for (var i = 0; i < inputsInternos.length; i++) {
+                    inputsInternos[i].checked = false;
+                }
+                if(targetId === 'nivel-cuatro-opciones-a01') {
+                    document.getElementById("nivel-asociacion-programa").style.display = "none";
+                    document.getElementById("rem-programa-asociado-select").value = "";
+                    var radios = document.getElementsByName("sub_a01_opcion");
+                    for(var j=0; j<radios.length; j++) radios[j].checked = false;
+                }
+            }
+        }
+
+        function evaluarDespliegueAsociacionPrograma(radio) {
+            var boxAsociacion = document.getElementById("nivel-asociacion-programa");
+            if (radio.value === "cardio" && radio.checked) {
+                boxAsociacion.style.display = "block";
+            } else {
+                boxAsociacion.style.display = "none";
+                document.getElementById("rem-programa-asociado-select").value = "";
+            }
+        }
+
+        function guardarFilaParametrosHistorial() {
+            var fecha = document.getElementById("p-in-fecha").value.trim();
+            if(!fecha) return alert("Debe ingresar la fecha.");
+            var tbody = document.getElementById("tabla-clinica-tbody");
+            document.getElementById("fila-vacia-parametros")?.remove();
+            var peso = document.getElementById("p-in-peso").value.trim() || '--';
+            var talla = document.getElementById("p-in-talla").value.trim() || '--';
+            var imc = document.getElementById("p-in-imc").value.trim() || '--';
+            var pas = document.getElementById("p-in-pas").value.trim() || '--';
+            var pad = document.getElementById("p-in-pad").value.trim() || '--';
+            var pulso = document.getElementById("p-in-pulso").value.trim() || '--';
+            var taxilar = document.getElementById("p-in-taxilar").value.trim() || '--';
+            var ccintura = document.getElementById("p-in-ccintura").value.trim() || '--';
+            var tr = document.createElement("tr");
+            tr.innerHTML = `<td><strong>${fecha}</strong></td><td>${peso}</td><td>${talla}</td><td>${imc}</td><td>${pas}</td><td>${pad}</td><td>${pulso}</td><td>${taxilar}</td><td>${ccintura}</td>`;
+            var textoInyeccion = `[Control ${fecha}] Peso: ${peso} kg; Talla: ${talla} m; IMC: ${imc}; PA: ${pas}/${pad} mmHg; Pulso: ${pulso} lpm; T° Axilar: ${taxilar} °C; C. Cintura: ${ccintura} cm.`;
+            listadoIdsColumnasExtras.forEach(id => { 
+                var valorExtra = document.getElementById("p-in-"+id).value.trim() || '--';
+                tr.innerHTML += `<td>${valorExtra}</td>`;
+                var labelTexto = document.getElementById("form-unit-"+id)?.getElementsByTagName('label')[0]?.innerText || "Extra";
+                textoInyeccion += ` ${labelTexto} ${valorExtra};`;
+            });
+            tr.innerHTML += `<td><button class="btn-action btn-red" style="padding:2px 6px; font-size:9px;" onclick="this.parentElement.parentElement.remove()">❌</button></td>`;
+            tbody.appendChild(tr);
+            var campoFisico = document.getElementById("reg-fisico");
+            campoFisico.value = campoFisico.value.trim() === "" ? textoInyeccion : campoFisico.value + "\n" + textoInyeccion;
+            alert("✓ Constantes grabadas.");
+        }
+
+        function ejecutarGuardarYCerrarAtencion() {
+            if(!document.getElementById("reg-motivo").value || !document.getElementById("reg-actuacion").value) {
+                return alert("⚠️ Error: Debe registrar Motivo y Actuación.");
+            }
+            document.getElementById("seccion-rem-flujo").style.display = "block";
+            document.getElementById("seccion-rem-flujo").scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function ejecutarCierreYGuardarDefinitivo() {
+            var remsSeleccionados = [];
+            if(document.getElementById("rem-a01").checked) remsSeleccionados.push("A01");
+            if(document.getElementById("rem-a02").checked) remsSeleccionados.push("A02");
+            if(document.getElementById("rem-a04").checked) remsSeleccionados.push("A04");
+            if(document.getElementById("rem-bm02").checked) remsSeleccionados.push("BM02");
+
+            if(remsSeleccionados.length === 0) return alert("❌ Debe validar con al menos un código REM.");
+
+            var fichaPaciente = {
+                nombre: document.getElementById("p-nombre").value,
+                run: document.getElementById("p-run").value,
+                sexo: document.getElementById("p-sexo").value,
+                edad: document.getElementById("p-edad").value,
+                motivo: document.getElementById("reg-motivo").value,
+                anamnesis: document.getElementById("reg-anamnesis").value,
+                fisico: document.getElementById("reg-fisico").value,
+                diagnosticos: document.getElementById("reg-diagnosticos").value,
+                actuacion: document.getElementById("reg-actuacion").value,
+                remAsociadoTexto: remsSeleccionados.join('+')
+            };
+
+            listadoPacientesGlobales.push(fichaPaciente);
+            renderizarChipsPacientesInfeior();
+            limpiarFormularioAtencionCompleto();
+            alert("🔒 Atención cerrada y datos guardados.");
+        }
+
+        function renderizarChipsPacientesInfeior() {
+            var contenedor = document.getElementById("contenedor-chips-pacientes");
+            contenedor.innerHTML = "";
+            listadoPacientesGlobales.forEach(function(pac, i) {
+                var chip = document.createElement("div");
+                chip.className = "patient-clickable-chip";
+                chip.setAttribute("onclick", "recuperarPacienteHistoricoAFormulario(" + i + ")");
+                chip.innerHTML = `👤 ${pac.nombre} - REM: ${pac.remAsociadoTexto}`;
+                contenedor.appendChild(chip);
+            });
+        }
+
+        function recuperarPacienteHistoricoAFormulario(index) {
+            var pac = listadoPacientesGlobales[index];
+            document.getElementById("p-nombre").value = pac.nombre;
+            document.getElementById("p-run").value = pac.run;
+            document.getElementById("p-sexo").value = pac.sexo;
+            document.getElementById("p-edad").value = pac.edad;
+            document.getElementById("reg-motivo").value = pac.motivo;
+            document.getElementById("reg-anamnesis").value = pac.anamnesis;
+            document.getElementById("reg-fisico").value = pac.fisico;
+            document.getElementById("reg-diagnosticos").value = pac.diagnosticos;
+            document.getElementById("reg-actuacion").value = pac.actuacion;
+            alert("📂 Mostrando registros de: " + pac.nombre);
+        }
+
+        function limpiarFormularioAtencionCompleto() {
+            document.getElementById("p-nombre").value = "NUEVO PACIENTE";
+            document.getElementById("p-run").value = "";
+            document.getElementById("p-sexo").value = "";
+            document.getElementById("p-edad").value = "";
+            document.getElementById("reg-motivo").value = "";
+            document.getElementById("reg-anamnesis").value = "";
+            document.getElementById("reg-fisico").value = "";
+            document.getElementById("reg-diagnosticos").value = "";
+            document.getElementById("reg-actuacion").value = "";
+            document.getElementById("seccion-rem-flujo").style.display = "none";
+            document.querySelectorAll('#seccion-rem-flujo input').forEach(el => el.checked = false);
+            document.getElementById("sub-rama-a01-seccion-b").style.display = "none";
+            document.getElementById("sub-rama-a01-seccion-c").style.display = "none";
+            document.getElementById("nivel-asociacion-programa").style.display = "none";
+            document.getElementById("tabla-clinica-tbody").innerHTML = `<tr id="fila-vacia-parametros"><td colspan="10" style="text-align: center; color: #888; font-style: italic; padding: 15px; background:#ffffff;">No se han guardado parámetros clínicos.</td></tr>`;
+        }
+
+        function ejecutarGuardarParcial() { alert("✓ Datos guardados temporalmente."); }
+
+        function actualizarCamposExamenFijo() {
+            var t = document.getElementById("ex-tipo").value;
+            var c = document.getElementById("contenedor-valores-examen-especifico");
+            if(t==="hematocrito") c.innerHTML = `<div><label>Htco (%):</label><input type="text" id="val-htco" class="ficha-input" style="width:80px;"></div>`;
+            else if(t==="glicemia") c.innerHTML = `<div><label>Glicemia (mg/dL):</label><input type="text" id="val-glic" class="ficha-input" style="width:80px;"></div>`;
+            else if(t==="perfil_lipidico") c.innerHTML = `<div style="display:flex; gap:5px;"><div><label>Col Tot:</label><input type="text" id="val-coltot" class="ficha-input" style="width:60px;"></div><div><label>HDL:</label><input type="text" id="val-hdl" class="ficha-input" style="width:60px;"></div><div><label>LDL:</label><input type="text" id="val-ldl" class="ficha-input" style="width:60px;"></div></div>`;
+            else if(t==="creatinina") c.innerHTML = `<div style="display:flex; gap:5px;"><div><label>Creatinina:</label><input type="text" id="val-creat" class="ficha-input" style="width:60px;"></div><div><label>VFG:</label><input type="text" id="val-vfg" class="ficha-input" style="width:60px;"></div></div>`;
+            else if(t==="rac") c.innerHTML = `<div><label>RAC (mg/g):</label><input type="text" id="val-rac" class="ficha-input" style="width:80px;"></div>`;
+            else if(t==="hba1c") c.innerHTML = `<div><label>HbA1c (%):</label><input type="text" id="val-hba1c" class="ficha-input" style="width:80px;"></div>`;
+        }
+
+        function guardarExamenLaboratorioHistorial() {
+            var f = document.getElementById("ex-fecha").value;
+            if(!f) return alert("Fecha requerida");
+            document.getElementById("aviso-vacio-examenes")?.remove();
+            examIdCounter++;
+            var card = document.createElement("div");
+            card.className = "exam-card-history";
+            card.id = "exam-card-id-" + examIdCounter;
+            card.innerHTML = `<div class="exam-card-history-header"><span>🟢 EXAMEN REGISTRADO [${f}]</span></div><div class="program-form-content open" id="it-ex-${examIdCounter}"><p style="padding:6px;">Resultados ingresados y anexados a la ficha de control diario de APS.</p></div>`;
+            document.getElementById("contenedor-historial-examenes-laboratorio").appendChild(card);
+        }
+
+        function crearNuevaColumnaParametro() {
+            var n = document.getElementById("nuevo-param-nombre").value.trim();
+            if(!n) return;
+            var id = "extra_" + n.toLowerCase().replace(/[^a-z0-9]/g, "");
+            listadoIdsColumnasExtras.push(id);
+            var contenedorInputs = document.getElementById("contenedor-inputs-dinamicos");
+            var divNuevoInput = document.createElement("div");
+            divNuevoInput.className = "param-input-unit";
+            divNuevoInput.id = "form-unit-" + id;
+            divNuevoInput.innerHTML = `<label>${n.toUpperCase()}:</label><input type="text" id="p-in-${id}" class="ficha-input">`;
+            contenedorInputs.appendChild(divNuevoInput);
+            var hr = document.getElementById("tabla-header-row");
+            var th = document.createElement("th"); th.innerText = n.toUpperCase();
+            hr.insertBefore(th, hr.lastElementChild);
+            document.getElementById("nuevo-param-nombre").value = "";
+        }
+
+        function guardarNuevaEducacion() {
+            var f = document.getElementById("edu-fecha").value, c = document.getElementById("edu-contenido").value;
+            if(!f || !c) return alert("Faltan datos");
+            document.getElementById("fila-vacia-educacion")?.remove();
+            document.getElementById("tabla-historial-educacion").getElementsByTagName("tbody")[0].innerHTML += `<tr><td>${f}</td><td>${document.getElementById("edu-profesional").value}</td><td>${c}</td><td>${document.getElementById("edu-observaciones").value}</td><td><button class="btn-action btn-red" style="padding:2px 6px; font-size:9px;" onclick="this.parentElement.parentElement.remove()">❌</button></td></tr>`;
+        }
+
+        // --- LÓGICA DE PROGRAMAS AGREGADA ---
+        function agregarProgramaAlFlujo() {
+            var s = document.getElementById("selector-programa-principal");
+            var v = s.value;
+            if(!v || document.getElementById("card-"+v)) return;
+            
+            var card = document.createElement("div"); 
+            card.className = "program-card"; 
+            card.id = "card-"+v;
+            
+            if(v === 'mental') {
+                card.innerHTML = `
+                <div class="program-card-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                    <span>📁 PHQ-9 (Validado Chile)</span>
+                    <span onclick="event.stopPropagation(); this.parentElement.parentElement.remove();" style="color:#e11d48; padding: 2px 6px; cursor: pointer; border-radius: 4px;" title="Eliminar este programa">❌</span>
+                </div>
+                <div class="program-form-content open" style="padding:10px;">
+                    <table class="phq9-table" id="tabla-phq9" onchange="calcularTotalPHQ9()">
+                        <thead><tr><th>Pregunta</th><th>0</th><th>1</th><th>2</th><th>3</th></tr></thead>
+                        <tbody>${renderizarFilasPHQ9()}</tbody>
+                    </table>
+                    <div style="margin-top:10px;">
+                        <strong>¿Cuán difícil le ha sido cumplir con trabajo/hogar/relaciones?</strong><br>
+                        <select id="func-phq9" class="ficha-select" onchange="calcularTotalPHQ9()">
+                            <option value="0">Nada en absoluto</option>
+                            <option value="1">Algo difícil</option>
+                            <option value="2">Muy difícil</option>
+                            <option value="3">Extremadamente difícil</option>
+                        </select>
+                    </div>
+                    <div style="margin-top:10px; font-weight:bold; font-size:12px;">Puntaje Total: <span id="total-phq9">0</span> (<span id="res-phq9">Sin síndrome depresivo</span>)</div>
+                    <button class="btn-action btn-green" style="margin-top:10px; width:100%;" onclick="guardarPHQ9EnActuacion()">💾 Guardar Puntaje en Actuación</button>
+                </div>`;
+            } else {
+                card.innerHTML = `
+                <div class="program-card-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                    <span>📁 ${s.options[s.selectedIndex].text}</span>
+                    <span onclick="event.stopPropagation(); this.parentElement.parentElement.remove();" style="color:#e11d48; padding: 2px 6px; cursor: pointer; border-radius: 4px;" title="Eliminar este programa">❌</span>
+                </div>
+                <div class="program-form-content open">
+                    <div style="padding:15px;">
+                        <table class="matrix-table" onchange="calcularAlgoritmo(this)">
+                            <tr><th>Hist. Ulc.</th><th>EAP</th><th>Sensib.</th><th>Deform.</th><th>Grupo</th></tr>
+                            <tr>
+                                <td><input type="radio" name="u_h_${v}" value="si"> SI<br><input type="radio" name="u_h_${v}" value="no" checked> NO</td>
+                                <td><input type="radio" name="u_e_${v}" value="si"> SI<br><input type="radio" name="u_e_${v}" value="no" checked> NO</td>
+                                <td><input type="radio" name="u_s_${v}" value="norm" checked> Norm<br><input type="radio" name="u_s_${v}" value="alt"> Alt</td>
+                                <td><input type="radio" name="u_d_${v}" value="si"> SI<br><input type="radio" name="u_d_${v}" value="no" checked> NO</td>
+                                <td class="td-grupo risk-box risk-0">0<br><span class="txt-nombre-riesgo">BAJO</span></td>
+                            </tr>
+                        </table>
+                        <div class="bloque-recomendacion-texto" style="margin-top:10px; font-weight:bold; color:#1e293b;">Recomendación: Próxima evaluación: 12 meses. Educación para el autocuidado. Calzado apropiado.</div>
+                        <button class="btn-action btn-green" style="margin-top:10px; width:100%;" onclick="guardarRiesgoEnActuacion('${v}')">💾 Guardar Riesgo en Actuación</button>
+                    </div>
+                </div>`;
+            }
+            document.getElementById("contenedor-programas-activos").appendChild(card);
+            s.value = "";
+        }
+
+        function renderizarFilasPHQ9() {
+            let p = [
+                "1. Poco interés o placer en hacer cosas", 
+                "2. Sentirse desanimado/a, deprimido/a, o sin esperanza", 
+                "3. Problemas para quedarse o mantenerse dormido/a, o dormir demasiado", 
+                "4. Sentirse cansado/a o tener poca energía", 
+                "5. Tener poco apetito o comer en exceso", 
+                "6. Sentir falta de amor propio, o que sea un fracaso o decepción para sí mismo o su familia", 
+                "7. Dificultad para concentrarse en cosas tales como leer el periódico o ver televisión", 
+                "8. Moverse o hablar tan lentamente que otras personas podrían haberlo notado. O, por el contrario, estar tan inquieto/a o agitado/a que se ha estado moviendo mucho más de lo normal", 
+                "9. Pensamientos de que estaría mejor muerto/a o de lastimarse de alguna manera"
+            ];
+            let html = "";
+            for(let i=0; i<9; i++) {
+                html += `<tr><td>${p[i]}</td>
+                ${[0,1,2,3].map(val => `<td><input type="radio" name="p${i}" value="${val}"></td>`).join('')}</tr>`;
+            }
+            return html;
+        }
+
+        function calcularTotalPHQ9() {
+            let total = 0;
+            for(let i=0; i<9; i++) {
+                let sel = document.querySelector('input[name="p'+i+'"]:checked');
+                if(sel) total += parseInt(sel.value);
+            }
+            
+            let res = "Sin síndrome depresivo (Depresión mínima)";
+            if (total >= 5 && total <= 9) res = "Depresión leve";
+            else if (total >= 10 && total <= 14) res = "Depresión moderada";
+            else if (total >= 15 && total <= 19) res = "Depresión moderadamente grave";
+            else if (total >= 20) res = "Depresión grave";
+
+            document.getElementById("total-phq9").innerText = total;
+            document.getElementById("res-phq9").innerText = res;
+        }
+
+        function guardarPHQ9EnActuacion() {
+            let total = document.getElementById("total-phq9").innerText;
+            let res = document.getElementById("res-phq9").innerText;
+            let funcText = document.getElementById("func-phq9").options[document.getElementById("func-phq9").selectedIndex].text;
+            
+            let textoAdicional = `\n- Aplicación PHQ-9 (Salud Mental): Puntaje Total ${total}/27 (${res}). Dificultad funcional reportada: ${funcText}.`;
+            document.getElementById("reg-actuacion").value += textoAdicional;
+            alert("✓ Puntaje guardado en Actuación.");
+        }
+
+        function calcularAlgoritmo(tablaElement) {
+            var card = tablaElement.closest('.program-card');
+            var v = card.id.replace('card-', '');
+            
+            var h = card.querySelector('input[name="u_h_'+v+'"]:checked').value;
+            var e = card.querySelector('input[name="u_e_'+v+'"]:checked').value;
+            var s = card.querySelector('input[name="u_s_'+v+'"]:checked').value;
+            var d = card.querySelector('input[name="u_d_'+v+'"]:checked').value;
+            
+            var td = card.querySelector(".td-grupo");
+            var txtNombre = card.querySelector(".txt-nombre-riesgo");
+            var txtRec = card.querySelector(".bloque-recomendacion-texto");
+            
+            let res;
+            if (h === "si") {
+                res = { class: "risk-3", nombre: "MÁXIMO", rec: "Próxima evaluación: 1 a 3 meses. Intensificar la educación para el autocuidado. Calzado especial si requiere. Referir a especialista para manejo conjunto.", grupo: "3" };
+            } else if (e === "si" || (s === "alt" && d === "si")) {
+                res = { class: "risk-2", nombre: "ALTO", rec: "Próxima evaluación: 3 a 6 meses. Intensificar la educación para el autocuidado. Calzado especial si requiere. Considerar referir a especialista para manejo conjunto.", grupo: "2" };
+            } else if (s === "alt") {
+                res = { class: "risk-1", nombre: "MODERADO", rec: "Próxima evaluación: 6 meses. Educación para el autocuidado. Calzado apropiado.", grupo: "1" };
+            } else {
+                res = { class: "risk-0", nombre: "BAJO", rec: "Próxima evaluación: 12 meses. Educación para el autocuidado. Calzado apropiado.", grupo: "0" };
+            }
+
+            td.className = "td-grupo risk-box " + res.class;
+            td.innerHTML = res.grupo + "<br>"; 
+            td.appendChild(txtNombre);
+            txtNombre.innerText = res.nombre;
+            txtRec.innerText = "Recomendación: " + res.rec;
+        }
+
+        function guardarRiesgoEnActuacion(v) {
+            var card = document.getElementById("card-" + v);
+            var riesgo = card.querySelector(".txt-nombre-riesgo").innerText;
+            var textArea = document.getElementById("reg-actuacion");
+            var textoAdicional = `\n- Estimación del riesgo de ulceración en personas con diabetes: Riesgo ${riesgo}.`;
+            textArea.value += textoAdicional;
+            alert("✓ Riesgo registrado en el campo Actuación.");
+        }
+
+        function docenteAgregarEpisodio() { }
+        function docenteAgregarCronologico() { }
+    </script>
+<style>
+    .watermark-author {
+        position: fixed;
+        bottom: 15px;
+        left: 15px;
+        font-size: 11px; /* Tamaño ligeramente mayor */
+        color: #000000;  /* Color negro */
+        background: rgba(255, 255, 255, 0.6);
+        padding: 6px;
+        border-radius: 4px;
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        pointer-events: none;
+        z-index: 9999;
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+</style>
+
+<div class="watermark-author">
+    AUTOR: Cristopher Erices R.<br>
+    Enfermero | 19.583.104-1
+</div>
+</body>
+</html>
